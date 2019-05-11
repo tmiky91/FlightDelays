@@ -19,7 +19,7 @@ public class ExtFlightDelaysDAO {
 		List<Airline> result = new ArrayList<Airline>();
 
 		try {
-			Connection conn = ConnectDB.getConnection();
+			Connection conn = DBConnect.getConnection();
 			PreparedStatement st = conn.prepareStatement(sql);
 			ResultSet rs = st.executeQuery();
 
@@ -42,7 +42,7 @@ public class ExtFlightDelaysDAO {
 		List<Airport> result = new ArrayList<Airport>();
 
 		try {
-			Connection conn = ConnectDB.getConnection();
+			Connection conn = DBConnect.getConnection();
 			PreparedStatement st = conn.prepareStatement(sql);
 			ResultSet rs = st.executeQuery();
 
@@ -63,32 +63,4 @@ public class ExtFlightDelaysDAO {
 		}
 	}
 
-	public List<Flight> loadAllFlights() {
-		String sql = "SELECT * FROM flights";
-		List<Flight> result = new LinkedList<Flight>();
-
-		try {
-			Connection conn = ConnectDB.getConnection();
-			PreparedStatement st = conn.prepareStatement(sql);
-			ResultSet rs = st.executeQuery();
-
-			while (rs.next()) {
-				Flight flight = new Flight(rs.getInt("ID"), rs.getInt("AIRLINE_ID"), rs.getInt("FLIGHT_NUMBER"),
-						rs.getString("TAIL_NUMBER"), rs.getInt("ORIGIN_AIRPORT_ID"),
-						rs.getInt("DESTINATION_AIRPORT_ID"),
-						rs.getTimestamp("SCHEDULED_DEPARTURE_DATE").toLocalDateTime(), rs.getDouble("DEPARTURE_DELAY"),
-						rs.getDouble("ELAPSED_TIME"), rs.getInt("DISTANCE"),
-						rs.getTimestamp("ARRIVAL_DATE").toLocalDateTime(), rs.getDouble("ARRIVAL_DELAY"));
-				result.add(flight);
-			}
-
-			conn.close();
-			return result;
-
-		} catch (SQLException e) {
-			e.printStackTrace();
-			System.out.println("Errore connessione al database");
-			throw new RuntimeException("Error Connection Database");
-		}
-	}
 }

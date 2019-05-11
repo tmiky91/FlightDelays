@@ -7,7 +7,7 @@ public class TestConnection {
 	public static void main(String[] args) {
 		
 		try {
-			Connection connection = ConnectDB.getConnection();
+			Connection connection = DBConnect.getConnection();
 			connection.close();
 			System.out.println("Test PASSED");
 
