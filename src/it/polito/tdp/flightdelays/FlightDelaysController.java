@@ -9,9 +9,11 @@ package it.polito.tdp.flightdelays;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import it.polito.tdp.extflightdelays.model.Airport;
 import it.polito.tdp.extflightdelays.model.Model;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextArea;
@@ -41,21 +43,46 @@ public class FlightDelaysController {
     private Button btnAnalizza; // Value injected by FXMLLoader
 
     @FXML // fx:id="cmbBoxAeroportoPartenza"
-    private ComboBox<String> cmbBoxAeroportoPartenza; // Value injected by FXMLLoader
+    private ComboBox<Airport> cmbBoxAeroportoPartenza; // Value injected by FXMLLoader
 
     @FXML // fx:id="cmbBoxAeroportoArrivo"
-    private ComboBox<String> cmbBoxAeroportoArrivo; // Value injected by FXMLLoader
+    private ComboBox<Airport> cmbBoxAeroportoArrivo; // Value injected by FXMLLoader
 
     @FXML // fx:id="btnAeroportiConnessi"
     private Button btnAeroportiConnessi; // Value injected by FXMLLoader
 
     @FXML
     void doAnalizzaAeroporti(ActionEvent event) {
-
+    	String distanza = distanzaMinima.getText();
+    	if(distanza!=null || !distanza.isEmpty()) {
+    		if(model.isDigit(distanza)) {
+    			model.creaGrafo(Integer.parseInt(distanza));
+        		txtResult.setText(model.getVertici());
+        	}
+        	else {
+        		showMessage("Errore: Inserisci un valore valido");
+        	}
+    	}
+    	else {
+    		showMessage("Errore: Inserisci una distanza minima");
+    	}
     }
 
     @FXML
     void doTestConnessione(ActionEvent event) {
+    	Airport partenza = cmbBoxAeroportoPartenza.getValue();
+    	Airport arrivo = cmbBoxAeroportoArrivo.getValue();
+    	if(partenza!=null && arrivo!=null) {
+    		if(model.testConnessione(partenza.getId(), arrivo.getId())) {
+    			txtResult.setText("Si i due aereoporti selezionati sono connessi. Possibile percorso: \n");
+    			txtResult.setText(model.trovaPercorso(partenza.getId(), arrivo.getId()));
+    		}else {
+    			txtResult.setText("Non esiste rotta che colleghi i due aereoporti selezionati");
+    		}
+    		
+    	}else {
+    		showMessage("Errore: Selezionare un aereoporto di partenza e un aereoporto di destinazione dai rispettivi menù a tendina");
+    	}
 
     }
 
@@ -72,6 +99,14 @@ public class FlightDelaysController {
     
     public void setModel(Model model) {
 		this.model = model;
+		cmbBoxAeroportoPartenza.getItems().addAll(model.getAllAirports());
+		cmbBoxAeroportoArrivo.getItems().addAll(model.getAllAirports());
+	}
+    
+    private void showMessage(String message) {
+		Alert alert = new Alert(Alert.AlertType.ERROR);
+		alert.setContentText(message);
+		alert.show();
 	}
 }
 
