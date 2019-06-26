@@ -9,9 +9,11 @@ package it.polito.tdp.flightdelays;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import it.polito.tdp.extflightdelays.model.Airport;
 import it.polito.tdp.extflightdelays.model.Model;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextArea;
@@ -41,21 +43,44 @@ public class FlightDelaysController {
     private Button btnAnalizza; // Value injected by FXMLLoader
 
     @FXML // fx:id="cmbBoxAeroportoPartenza"
-    private ComboBox<String> cmbBoxAeroportoPartenza; // Value injected by FXMLLoader
+    private ComboBox<Airport> cmbBoxAeroportoPartenza; // Value injected by FXMLLoader
 
     @FXML // fx:id="cmbBoxAeroportoArrivo"
-    private ComboBox<String> cmbBoxAeroportoArrivo; // Value injected by FXMLLoader
+    private ComboBox<Airport> cmbBoxAeroportoArrivo; // Value injected by FXMLLoader
 
     @FXML // fx:id="btnAeroportiConnessi"
     private Button btnAeroportiConnessi; // Value injected by FXMLLoader
 
     @FXML
     void doAnalizzaAeroporti(ActionEvent event) {
+    	String distMedia = distanzaMinima.getText();
+    	if(distMedia!=null && !distMedia.isEmpty()) {
+    		if(model.isDigit(distMedia)) {
+    			txtResult.setText(model.creaGrafo(Integer.parseInt(distMedia)));
+    			cmbBoxAeroportoPartenza.getItems().addAll(model.getVertici());
+    			cmbBoxAeroportoArrivo.getItems().addAll(model.getVertici());
+    		}else {
+    			showMessage("Errore: Inserisci una distanza minima valida");
+    		}
+    	}else {
+    		showMessage("Errore: Inserisci una distanza minima");
+    	}
 
     }
 
     @FXML
     void doTestConnessione(ActionEvent event) {
+    	Airport partenza = cmbBoxAeroportoPartenza.getValue();
+    	Airport arrivo = cmbBoxAeroportoArrivo.getValue();
+    	if(partenza!=null && arrivo!=null) {
+    		if(!partenza.equals(arrivo)) {
+    			txtResult.setText(model.trovaPercorso(partenza, arrivo));
+    		}else {
+    			showMessage("Errore: Selezionare 2 aeroporti differenti");
+    		}
+    	}else {
+    		showMessage("Errore: Selezionare un aeroporto di partenza e uno di arrivo dai rispettivi menù a tendina");
+    	}
 
     }
 
@@ -72,6 +97,12 @@ public class FlightDelaysController {
     
     public void setModel(Model model) {
 		this.model = model;
+	}
+    
+    private void showMessage(String message) {
+		Alert alert = new Alert(Alert.AlertType.ERROR);
+		alert.setContentText(message);
+		alert.show();
 	}
 }
 
